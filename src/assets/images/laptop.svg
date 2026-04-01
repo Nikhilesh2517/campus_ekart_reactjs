@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" role="img" aria-labelledby="title desc">
+  <title>Laptop listing image</title>
+  <desc>Illustrated laptop with blue screen.</desc>
+  <rect width="600" height="400" fill="#edf7f7"/>
+  <rect x="175" y="82" width="250" height="160" rx="16" fill="#0f172a"/>
+  <rect x="192" y="98" width="216" height="126" rx="10" fill="#38bdf8"/>
+  <rect x="210" y="115" width="180" height="18" rx="9" fill="#e0f2fe" opacity="0.9"/>
+  <rect x="210" y="145" width="110" height="12" rx="6" fill="#bae6fd"/>
+  <path d="M140 264h320l35 36H105z" fill="#94a3b8"/>
+  <rect x="255" y="277" width="90" height="8" rx="4" fill="#e2e8f0"/>
+</svg>

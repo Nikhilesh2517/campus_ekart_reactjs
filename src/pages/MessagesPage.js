@@ -1,4 +1,3 @@
-// src/pages/MessagesPage.js
 import React, { useState } from 'react';
 import { Card, Row, Col, List, Avatar, Input, Button, Space, Typography, Divider } from 'antd';
 import { SendOutlined, UserOutlined } from '@ant-design/icons';

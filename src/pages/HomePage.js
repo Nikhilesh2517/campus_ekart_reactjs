@@ -1,4 +1,3 @@
-// src/pages/HomePage.js
 import React from 'react';
 import { Carousel, Row, Col, Card, Button, Typography, Space, Tag, Statistic } from 'antd';
 import { 
@@ -14,6 +13,12 @@ import {
   ToolOutlined
 } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
+import { formatPrice } from '../utils/helpers';
+import heroBanner from '../assets/images/hero-banner.svg';
+import textbookImage from '../assets/images/textbook.svg';
+import laptopImage from '../assets/images/laptop.svg';
+import calculatorImage from '../assets/images/calculator.svg';
+import labKitImage from '../assets/images/lab-kit.svg';
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -33,7 +38,7 @@ const HomePage = () => {
       originalPrice: 120,
       condition: "Like New",
       seller: "Sarah Johnson",
-      image: "https://via.placeholder.com/300x200?text=Book",
+      image: textbookImage,
       rating: 4.8,
       reviews: 12,
     },
@@ -44,7 +49,7 @@ const HomePage = () => {
       originalPrice: 1299,
       condition: "Good",
       seller: "Michael Chen",
-      image: "https://via.placeholder.com/300x200?text=Laptop",
+      image: laptopImage,
       rating: 4.9,
       reviews: 8,
     },
@@ -55,7 +60,7 @@ const HomePage = () => {
       originalPrice: 120,
       condition: "Excellent",
       seller: "Emily Rodriguez",
-      image: "https://via.placeholder.com/300x200?text=Calculator",
+      image: calculatorImage,
       rating: 4.7,
       reviews: 15,
     },
@@ -66,16 +71,16 @@ const HomePage = () => {
       originalPrice: 80,
       condition: "Good",
       seller: "David Kim",
-      image: "https://via.placeholder.com/300x200?text=Lab+Kit",
+      image: labKitImage,
       rating: 4.5,
       reviews: 6,
     },
   ];
 
   const bannerImages = [
-    "https://via.placeholder.com/1200x400?text=Welcome+to+College+E-Kart",
-    "https://via.placeholder.com/1200x400?text=Buy+and+Sell+Academic+Resources",
-    "https://via.placeholder.com/1200x400?text=Save+Money+Together",
+    heroBanner,
+    heroBanner,
+    heroBanner,
   ];
 
   return (
@@ -132,7 +137,7 @@ const HomePage = () => {
         </Col>
         <Col xs={12} sm={6}>
           <Card>
-            <Statistic title="Money Saved" value={125000} prefix="$" precision={0} />
+            <Statistic title="Money Saved" value={125000} prefix="£" precision={0} />
           </Card>
         </Col>
       </Row>
@@ -176,8 +181,8 @@ const HomePage = () => {
                 description={
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                      <Text strong style={{ fontSize: 20, color: '#1890ff' }}>${item.price}</Text>
-                      <Text delete type="secondary">${item.originalPrice}</Text>
+                      <Text strong style={{ fontSize: 20, color: '#1890ff' }}>{formatPrice(item.price)}</Text>
+                      <Text delete type="secondary">{formatPrice(item.originalPrice)}</Text>
                     </div>
                     <Tag color={item.condition === 'Like New' ? 'green' : item.condition === 'Excellent' ? 'blue' : 'orange'}>
                       {item.condition}
@@ -227,13 +232,15 @@ const HomePage = () => {
           <Col xs={24} md={12}>
             <Card>
               <Space direction="vertical">
-                <StarFilled style={{ color: '#faad14', fontSize: 20 }} />
-                <StarFilled style={{ color: '#faad14', fontSize: 20 }} />
-                <StarFilled style={{ color: '#faad14', fontSize: 20 }} />
-                <StarFilled style={{ color: '#faad14', fontSize: 20 }} />
-                <StarFilled style={{ color: '#faad14', fontSize: 20 }} />
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <StarFilled style={{ color: '#faad14', fontSize: 20 }} />
+                  <StarFilled style={{ color: '#faad14', fontSize: 20 }} />
+                  <StarFilled style={{ color: '#faad14', fontSize: 20 }} />
+                  <StarFilled style={{ color: '#faad14', fontSize: 20 }} />
+                  <StarFilled style={{ color: '#faad14', fontSize: 20 }} />
+                </div>
                 <Paragraph style={{ marginTop: 16 }}>
-                  "College E-Kart saved me over $300 on textbooks this semester! The platform is easy to use and I trust the sellers because they're all verified students."
+                  "College E-Kart saved me over £300 on textbooks this semester! The platform is easy to use and I trust the sellers because they're all verified students."
                 </Paragraph>
                 <Text strong>- Emily Watson, Computer Science</Text>
               </Space>
@@ -242,11 +249,13 @@ const HomePage = () => {
           <Col xs={24} md={12}>
             <Card>
               <Space direction="vertical">
-                <StarFilled style={{ color: '#faad14', fontSize: 20 }} />
-                <StarFilled style={{ color: '#faad14', fontSize: 20 }} />
-                <StarFilled style={{ color: '#faad14', fontSize: 20 }} />
-                <StarFilled style={{ color: '#faad14', fontSize: 20 }} />
-                <StarFilled style={{ color: '#faad14', fontSize: 20 }} />
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <StarFilled style={{ color: '#faad14', fontSize: 20 }} />
+                  <StarFilled style={{ color: '#faad14', fontSize: 20 }} />
+                  <StarFilled style={{ color: '#faad14', fontSize: 20 }} />
+                  <StarFilled style={{ color: '#faad14', fontSize: 20 }} />
+                  <StarFilled style={{ color: '#faad14', fontSize: 20 }} />
+                </div>
                 <Paragraph style={{ marginTop: 16 }}>
                   "I sold my old iPad within 2 days of listing it. The messaging system made it easy to coordinate with the buyer. Highly recommend!"
                 </Paragraph>

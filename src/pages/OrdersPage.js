@@ -1,7 +1,7 @@
-// src/pages/OrdersPage.js
 import React from 'react';
 import { Card, Tabs, List, Avatar, Tag, Typography, Space, Button, Rate, Modal } from 'antd';
 import { ShoppingOutlined, CheckCircleOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import { formatPrice } from '../utils/helpers';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -61,7 +61,7 @@ const OrdersPage = () => {
                     }
                   />
                   <div>
-                    <Text strong>${item.price}</Text>
+                    <Text strong>{formatPrice(item.price)}</Text>
                   </div>
                 </List.Item>
               )}
@@ -91,7 +91,7 @@ const OrdersPage = () => {
                     }
                   />
                   <div>
-                    <Text strong>${item.price}</Text>
+                    <Text strong>{formatPrice(item.price)}</Text>
                   </div>
                 </List.Item>
               )}

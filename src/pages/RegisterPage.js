@@ -1,4 +1,3 @@
-// src/pages/RegisterPage.js
 import React, { useState } from 'react';
 import { Form, Input, Button, Card, Typography, Space, Alert, Steps, Select } from 'antd';
 import { UserOutlined, MailOutlined, LockOutlined, BankOutlined } from '@ant-design/icons';

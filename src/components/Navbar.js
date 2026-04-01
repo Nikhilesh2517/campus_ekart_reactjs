@@ -1,4 +1,3 @@
-// src/components/Navbar.js
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Layout, Menu, Input, Badge, Avatar, Dropdown, Button, Space, Drawer } from 'antd';
@@ -14,6 +13,8 @@ import {
   SettingOutlined,
   HeartOutlined,
 } from '@ant-design/icons';
+import appLogo from '../assets/images/app-logo.svg';
+import defaultAvatar from '../assets/images/default-avatar.svg';
 
 const { Header } = Layout;
 const { Search } = Input;
@@ -67,7 +68,7 @@ const Navbar = () => {
       trigger={['click']}
     >
       <Space style={{ cursor: 'pointer' }}>
-        <Avatar icon={<UserOutlined />} src={user?.avatar} />
+        <Avatar icon={<UserOutlined />} src={user?.avatar || defaultAvatar} />
         <span style={{ display: 'none', '@media (min-width: 768px)': { display: 'inline' } }}>
           {user?.name || 'Account'}
         </span>
@@ -112,8 +113,9 @@ const Navbar = () => {
     <Header style={{ position: 'fixed', top: 0, zIndex: 1000, width: '100%', background: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', padding: '0 48px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '100%' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
-          <Link to="/" style={{ fontSize: 24, fontWeight: 'bold', color: '#1890ff', textDecoration: 'none' }}>
-            College E-Kart
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 24, fontWeight: 'bold', color: '#1890ff', textDecoration: 'none' }}>
+            <img src={appLogo} alt="College E-Kart logo" style={{ width: 34, height: 34 }} />
+            <span>College E-Kart</span>
           </Link>
           <Menu
             mode="horizontal"

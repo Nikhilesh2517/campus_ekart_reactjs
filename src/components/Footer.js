@@ -1,7 +1,7 @@
-// src/components/Footer.js
 import React from 'react';
 import { Layout, Row, Col, Typography, Space, Button } from 'antd';
 import { FacebookOutlined, TwitterOutlined, InstagramOutlined, LinkedinOutlined, MailOutlined, PhoneOutlined } from '@ant-design/icons';
+import appLogo from '../assets/images/app-logo.svg';
 
 const { Footer: AntFooter } = Layout;
 const { Title, Text, Link } = Typography;
@@ -11,7 +11,10 @@ const Footer = () => {
     <AntFooter style={{ background: '#001529', color: 'white', padding: '48px 48px 24px' }}>
       <Row gutter={[32, 32]}>
         <Col xs={24} sm={12} md={6}>
-          <Title level={4} style={{ color: 'white' }}>College E-Kart</Title>
+          <Space align="center" size="small">
+            <img src={appLogo} alt="College E-Kart logo" style={{ width: 28, height: 28 }} />
+            <Title level={4} style={{ color: 'white', margin: 0 }}>College E-Kart</Title>
+          </Space>
           <Text style={{ color: 'rgba(255,255,255,0.65)' }}>
             Your trusted campus marketplace for buying and selling academic resources.
           </Text>

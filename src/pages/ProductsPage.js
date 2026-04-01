@@ -1,4 +1,3 @@
-// src/pages/ProductsPage.js
 import React, { useState } from 'react';
 import { 
   Row, Col, Card, Input, Select, Slider, Button, Tag, Empty, 
@@ -11,6 +10,9 @@ import {
   StarFilled,
   EnvironmentOutlined
 } from '@ant-design/icons';
+import { formatPrice } from '../utils/helpers';
+import textbookImage from '../assets/images/textbook.svg';
+import laptopImage from '../assets/images/laptop.svg';
 
 const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
@@ -49,7 +51,7 @@ const ProductsPage = () => {
       originalPrice: 120,
       condition: "Like New",
       seller: "Sarah Johnson",
-      image: "https://via.placeholder.com/300x200?text=Book",
+      image: textbookImage,
       rating: 4.8,
       reviews: 12,
       category: "books",
@@ -63,7 +65,7 @@ const ProductsPage = () => {
       originalPrice: 1299,
       condition: "Good",
       seller: "Michael Chen",
-      image: "https://via.placeholder.com/300x200?text=Laptop",
+      image: laptopImage,
       rating: 4.9,
       reviews: 8,
       category: "electronics",
@@ -101,9 +103,9 @@ const ProductsPage = () => {
         style={{ marginBottom: 24 }}
       />
       <Space style={{ marginBottom: 24 }}>
-        <Input value={`$${priceRange[0]}`} style={{ width: 100 }} />
+        <Input value={formatPrice(priceRange[0])} style={{ width: 100 }} />
         <span>to</span>
-        <Input value={`$${priceRange[1]}`} style={{ width: 100 }} />
+        <Input value={formatPrice(priceRange[1])} style={{ width: 100 }} />
       </Space>
 
       <Title level={5}>Condition</Title>
@@ -179,8 +181,8 @@ const ProductsPage = () => {
                     description={
                       <div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                          <Text strong style={{ fontSize: 20, color: '#1890ff' }}>${product.price}</Text>
-                          <Text delete type="secondary">${product.originalPrice}</Text>
+                          <Text strong style={{ fontSize: 20, color: '#1890ff' }}>{formatPrice(product.price)}</Text>
+                          <Text delete type="secondary">{formatPrice(product.originalPrice)}</Text>
                         </div>
                         <Tag color={getConditionColor(product.condition)}>{product.condition}</Tag>
                         <div style={{ marginTop: 8 }}>

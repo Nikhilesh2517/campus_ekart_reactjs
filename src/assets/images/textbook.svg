@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" role="img" aria-labelledby="title desc">
+  <title>Textbook listing image</title>
+  <desc>Illustrated blue textbook.</desc>
+  <rect width="600" height="400" fill="#eef4ff"/>
+  <rect x="155" y="70" width="290" height="260" rx="20" fill="#2563eb"/>
+  <rect x="180" y="95" width="240" height="210" rx="12" fill="#eff6ff"/>
+  <rect x="210" y="125" width="180" height="18" rx="9" fill="#93c5fd"/>
+  <rect x="210" y="160" width="140" height="14" rx="7" fill="#bfdbfe"/>
+  <rect x="210" y="188" width="165" height="14" rx="7" fill="#bfdbfe"/>
+  <rect x="210" y="216" width="120" height="14" rx="7" fill="#bfdbfe"/>
+  <rect x="142" y="70" width="24" height="260" rx="12" fill="#1d4ed8"/>
+</svg>

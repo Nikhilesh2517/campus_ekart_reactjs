@@ -1,4 +1,3 @@
-// src/pages/SellPage.js
 import React, { useState } from 'react';
 import { 
   Form, Input, Button, Card, Typography, Upload, Select, 
@@ -10,6 +9,7 @@ import {
   BookOutlined,
   CheckCircleOutlined
 } from '@ant-design/icons';
+import { formatPrice } from '../utils/helpers';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -139,7 +139,7 @@ const SellPage = () => {
           {currentStep === 1 && (
             <>
               <Form.Item
-                label="Price (USD)"
+                label="Price (GBP)"
                 name="price"
                 rules={[{ required: true, message: 'Please enter price' }]}
               >
@@ -148,7 +148,7 @@ const SellPage = () => {
                   step={5}
                   style={{ width: '100%' }}
                   placeholder="Enter your price"
-                  prefix="$"
+                  prefix="£"
                 />
               </Form.Item>
 
@@ -161,7 +161,7 @@ const SellPage = () => {
                   step={5}
                   style={{ width: '100%' }}
                   placeholder="Original retail price"
-                  prefix="$"
+                  prefix="£"
                 />
               </Form.Item>
 
@@ -228,9 +228,9 @@ const SellPage = () => {
               <Space direction="vertical" size="small" style={{ width: '100%' }}>
                 <div><Text strong>Title:</Text> {form.getFieldValue('title') || 'Not provided'}</div>
                 <div><Text strong>Category:</Text> {form.getFieldValue('category') || 'Not provided'}</div>
-                <div><Text strong>Price:</Text> ${form.getFieldValue('price') || '0'}</div>
+                <div><Text strong>Price:</Text> {formatPrice(form.getFieldValue('price') || 0)}</div>
                 {form.getFieldValue('originalPrice') && (
-                  <div><Text strong>Original Price:</Text> ${form.getFieldValue('originalPrice')}</div>
+                  <div><Text strong>Original Price:</Text> {formatPrice(form.getFieldValue('originalPrice'))}</div>
                 )}
                 <div><Text strong>Condition:</Text> {form.getFieldValue('condition') || 'Not provided'}</div>
                 <div><Text strong>Description:</Text></div>

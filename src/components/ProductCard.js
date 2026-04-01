@@ -3,6 +3,7 @@ import { Card, Tag, Typography, Button, Space, Rate, Tooltip } from 'antd';
 import { HeartOutlined, HeartFilled, EnvironmentOutlined, StarFilled } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { formatPrice, calculateDiscount } from '../utils/helpers';
+import textbookImage from '../assets/images/textbook.svg';
 
 const { Text } = Typography;
 
@@ -21,7 +22,7 @@ const ProductCard = ({ product, onSave, saved = false }) => {
         <div style={{ position: 'relative', height: 200, overflow: 'hidden' }}>
           <img
             alt={product.title}
-            src={product.images?.[0] || 'https://via.placeholder.com/300x200?text=No+Image'}
+            src={product.images?.[0] || product.image || textbookImage}
             style={{
               width: '100%',
               height: '100%',

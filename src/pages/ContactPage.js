@@ -1,4 +1,3 @@
-// src/pages/ContactPage.js
 import React, { useState } from 'react';
 import { Card, Form, Input, Button, Typography, Row, Col, Space, message } from 'antd';
 import { MailOutlined, PhoneOutlined, EnvironmentOutlined, SendOutlined } from '@ant-design/icons';

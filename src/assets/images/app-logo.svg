@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title desc">
+  <title>College E-Kart logo</title>
+  <desc>Blue shopping bag with a graduation cap.</desc>
+  <defs>
+    <linearGradient id="bag" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4f8cff"/>
+      <stop offset="100%" stop-color="#123d8f"/>
+    </linearGradient>
+  </defs>
+  <rect width="240" height="240" rx="56" fill="#f4f8ff"/>
+  <path d="M76 88h88l-8 96H84z" fill="url(#bag)"/>
+  <path d="M96 88c0-14 11-26 24-26s24 12 24 26" fill="none" stroke="#dbe7ff" stroke-width="10" stroke-linecap="round"/>
+  <path d="M120 46 58 72l62 25 62-25-62-26z" fill="#0f172a"/>
+  <path d="m182 72 18 9v38" fill="none" stroke="#0f172a" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="200" cy="123" r="8" fill="#0f172a"/>
+</svg>

@@ -1,4 +1,3 @@
-// src/pages/AboutPage.js
 import React from 'react';
 import { Card, Typography, Row, Col, Avatar, Space, Divider } from 'antd';
 import { TeamOutlined, SafetyOutlined, EnvironmentOutlined, DollarOutlined } from '@ant-design/icons';
@@ -29,7 +28,7 @@ const AboutPage = () => {
             <Space direction="vertical" size="middle">
               <DollarOutlined style={{ fontSize: 32, color: '#1890ff' }} />
               <Title level={4}>Save Money</Title>
-              <Text>Buy and sell at student-friendly prices, saving hundreds of dollars on textbooks and equipment.</Text>
+              <Text>Buy and sell at student-friendly prices, saving hundreds of pounds on textbooks and equipment.</Text>
             </Space>
           </Card>
         </Col>
@@ -79,7 +78,7 @@ const AboutPage = () => {
           </Col>
           <Col span={8}>
             <div style={{ textAlign: 'center' }}>
-              <Title level={2} style={{ color: '#1890ff' }}>$125K+</Title>
+              <Title level={2} style={{ color: '#1890ff' }}>£125K+</Title>
               <Text>Money Saved</Text>
             </div>
           </Col>

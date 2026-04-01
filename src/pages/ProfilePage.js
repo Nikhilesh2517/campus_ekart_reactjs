@@ -1,4 +1,3 @@
-// src/pages/ProfilePage.js
 import React, { useState, useEffect } from 'react';
 import { 
   Card, Tabs, List, Avatar, Typography, Button, Space, 
@@ -16,6 +15,8 @@ import {
   EnvironmentOutlined,
   CalendarOutlined
 } from '@ant-design/icons';
+import { formatPrice } from '../utils/helpers';
+import defaultAvatar from '../assets/images/default-avatar.svg';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -126,7 +127,7 @@ const ProfilePage = () => {
             count={<CameraOutlined style={{ background: '#1890ff', borderRadius: '50%', padding: 4 }} />}
             offset={[-10, 10]}
           >
-            <Avatar size={120} icon={<UserOutlined />} src={user?.avatar} />
+            <Avatar size={120} icon={<UserOutlined />} src={user?.avatar || defaultAvatar} />
           </Badge>
           <Title level={2} style={{ marginTop: 16, marginBottom: 4 }}>
             {user?.name}
@@ -198,7 +199,7 @@ const ProfilePage = () => {
                         <Tag color={item.status === 'active' ? 'green' : 'default'}>
                           {item.status.toUpperCase()}
                         </Tag>
-                        <Text>${item.price}</Text>
+                        <Text>{formatPrice(item.price)}</Text>
                         <Text type="secondary">{item.condition}</Text>
                         <Text type="secondary">{item.views} views</Text>
                       </Space>
@@ -224,7 +225,7 @@ const ProfilePage = () => {
                     title={<a href={`/product/${item.id}`}>{item.title}</a>}
                     description={
                       <Space>
-                        <Text>${item.price}</Text>
+                        <Text>{formatPrice(item.price)}</Text>
                         <Text type="secondary">Saved {item.savedDate}</Text>
                         <Text type="secondary">Seller: {item.seller}</Text>
                       </Space>

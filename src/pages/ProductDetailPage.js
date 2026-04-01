@@ -1,4 +1,3 @@
-// src/pages/ProductDetailPage.js
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
@@ -20,6 +19,11 @@ import {
   DollarOutlined,
   BookOutlined
 } from '@ant-design/icons';
+import { formatPrice } from '../utils/helpers';
+import defaultAvatar from '../assets/images/default-avatar.svg';
+import bookDetail1 from '../assets/images/book-detail-1.svg';
+import bookDetail2 from '../assets/images/book-detail-2.svg';
+import bookDetail3 from '../assets/images/book-detail-3.svg';
 
 const { Title, Text, Paragraph } = Typography;
 const { TabPane } = Tabs;
@@ -42,16 +46,16 @@ const ProductDetailPage = () => {
     condition: "Like New",
     seller: {
       name: "Sarah Johnson",
-      avatar: "https://via.placeholder.com/100x100?text=SJ",
+      avatar: defaultAvatar,
       rating: 4.8,
       totalSales: 24,
       memberSince: "2023",
       verified: true,
     },
     images: [
-      "https://via.placeholder.com/600x400?text=Book+Cover",
-      "https://via.placeholder.com/600x400?text=Inside+Page",
-      "https://via.placeholder.com/600x400?text=Back+Cover",
+      bookDetail1,
+      bookDetail2,
+      bookDetail3,
     ],
     description: "This textbook is in excellent condition with no markings or highlights. Used for one semester only. Includes access code for online resources. Perfect for Calculus I and II courses.",
     specifications: {
@@ -147,10 +151,10 @@ const ProductDetailPage = () => {
 
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 16 }}>
               <Text strong style={{ fontSize: 32, color: '#1890ff' }}>
-                ${product.price}
+                {formatPrice(product.price)}
               </Text>
               <Text delete type="secondary" style={{ fontSize: 18 }}>
-                ${product.originalPrice}
+                {formatPrice(product.originalPrice)}
               </Text>
               <Tag color="success">Save {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%</Tag>
             </div>

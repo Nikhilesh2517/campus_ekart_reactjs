@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" role="img" aria-labelledby="title desc">
+  <title>Calculator listing image</title>
+  <desc>Illustrated scientific calculator.</desc>
+  <rect width="600" height="400" fill="#fff7ed"/>
+  <rect x="205" y="48" width="190" height="304" rx="24" fill="#334155"/>
+  <rect x="228" y="78" width="144" height="60" rx="10" fill="#dbeafe"/>
+  <g fill="#f8fafc">
+    <rect x="228" y="164" width="32" height="28" rx="6"/>
+    <rect x="271" y="164" width="32" height="28" rx="6"/>
+    <rect x="314" y="164" width="58" height="28" rx="6"/>
+    <rect x="228" y="203" width="32" height="28" rx="6"/>
+    <rect x="271" y="203" width="32" height="28" rx="6"/>
+    <rect x="314" y="203" width="58" height="28" rx="6"/>
+    <rect x="228" y="242" width="32" height="28" rx="6"/>
+    <rect x="271" y="242" width="32" height="28" rx="6"/>
+    <rect x="314" y="242" width="58" height="28" rx="6"/>
+    <rect x="228" y="281" width="32" height="28" rx="6"/>
+    <rect x="271" y="281" width="32" height="28" rx="6"/>
+    <rect x="314" y="281" width="58" height="28" rx="6"/>
+  </g>
+  <rect x="228" y="164" width="32" height="28" rx="6" fill="#fb923c"/>
+</svg>
