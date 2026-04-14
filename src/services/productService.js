@@ -41,7 +41,7 @@ export const deleteProduct = async (id) => {
 };
 
 export const getUserProducts = async () => {
-  const response = await api.get('/products/user');
+  const response = await api.get('/products/user/me');
   return response.data;
 };
 
@@ -56,6 +56,6 @@ export const unsaveProduct = async (productId) => {
 };
 
 export const getSavedProducts = async () => {
-  const response = await api.get('/products/saved');
+  const response = await api.get('/products/saved/all');
   return response.data;
 };

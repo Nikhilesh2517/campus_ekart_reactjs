@@ -16,19 +16,19 @@ export const getUserListings = async () => {
 };
 
 export const getSavedItems = async () => {
-  const response = await api.get('/users/saved');
+  const response = await api.get('/products/saved/all');
   return response.data;
 };
 
 export const getOrderHistory = async () => {
-  const response = await api.get('/users/orders');
+  const response = await api.get('/orders');
   return response.data;
 };
 
 export const updateAvatar = async (file) => {
   const formData = new FormData();
   formData.append('avatar', file);
-  const response = await api.put('/users/avatar', formData, {
+  const response = await api.post('/users/avatar', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   });
   return response.data;

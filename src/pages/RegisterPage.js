@@ -1,50 +1,63 @@
 import React, { useState } from 'react';
-import { Form, Input, Button, Card, Typography, Space, Alert, Steps, Select } from 'antd';
-import { UserOutlined, MailOutlined, LockOutlined, BankOutlined } from '@ant-design/icons';
+import { Alert, Button, Card, Form, Input, Select, Space, Steps, Typography } from 'antd';
+import { BankOutlined, LockOutlined, MailOutlined, UserOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
 
+const universities = [
+  'University of Roehampton',
+  'University of London',
+  'Kingston University',
+  'Middlesex University',
+];
+
+const courses = [
+  'Computer Science',
+  'Data Science',
+  'Web Development',
+  'Business Administration',
+  'Economics',
+  'Engineering',
+];
+
 const RegisterPage = () => {
   const navigate = useNavigate();
+  const { register } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [currentStep, setCurrentStep] = useState(0);
+  const [registrationComplete, setRegistrationComplete] = useState(false);
 
   const onFinish = async (values) => {
     setLoading(true);
     setError('');
-    
+
     try {
-      // Simulate API call
-      setTimeout(() => {
-        localStorage.setItem('token', 'mock-token');
-        localStorage.setItem('user', JSON.stringify({ name: values.fullName, email: values.email }));
+      const response = await register({
+        fullName: values.fullName,
+        email: values.email,
+        password: values.password,
+        university: values.university,
+        course: values.course,
+        studentId: values.studentId,
+        yearOfStudy: values.yearOfStudy,
+      });
+
+      setRegistrationComplete(true);
+      setCurrentStep(2);
+
+      if (!response.verificationRequired) {
         navigate('/');
-      }, 1000);
+      }
     } catch (err) {
-      setError('Registration failed. Please try again.');
+      setError(err.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
-
-  const universities = [
-    'University of Roehampton',
-    'University of London',
-    'Kingston University',
-    'Middlesex University',
-  ];
-
-  const courses = [
-    'Computer Science',
-    'Data Science',
-    'Web Development',
-    'Business Administration',
-    'Economics',
-    'Engineering',
-  ];
 
   return (
     <div style={{ maxWidth: 500, margin: '0 auto', padding: '24px 0' }}>
@@ -54,35 +67,19 @@ const RegisterPage = () => {
           <Text type="secondary">Join the campus marketplace today</Text>
         </div>
 
-        {error && (
-          <Alert message={error} type="error" showIcon style={{ marginBottom: 24 }} />
-        )}
+        {error ? <Alert message={error} type="error" showIcon style={{ marginBottom: 24 }} /> : null}
 
         <Steps
           current={currentStep}
           onChange={setCurrentStep}
-          items={[
-            { title: 'Account', status: currentStep >= 0 ? 'process' : 'wait' },
-            { title: 'Profile', status: currentStep >= 1 ? 'process' : 'wait' },
-            { title: 'Verify', status: currentStep >= 2 ? 'process' : 'wait' },
-          ]}
+          items={[{ title: 'Account' }, { title: 'Profile' }, { title: 'Verify' }]}
           style={{ marginBottom: 24 }}
         />
 
-        <Form
-          name="register"
-          onFinish={onFinish}
-          autoComplete="off"
-          size="large"
-          layout="vertical"
-        >
-          {currentStep === 0 && (
+        <Form name="register" onFinish={onFinish} autoComplete="off" size="large" layout="vertical">
+          {currentStep === 0 ? (
             <>
-              <Form.Item
-                label="Full Name"
-                name="fullName"
-                rules={[{ required: true, message: 'Please enter your full name' }]}
-              >
+              <Form.Item label="Full Name" name="fullName" rules={[{ required: true, message: 'Please enter your full name' }]}>
                 <Input prefix={<UserOutlined />} placeholder="John Doe" />
               </Form.Item>
 
@@ -91,8 +88,7 @@ const RegisterPage = () => {
                 name="email"
                 rules={[
                   { required: true, message: 'Please enter your email' },
-                  { type: 'email', message: 'Please enter a valid university email' },
-                  { pattern: /@.*\.edu$/, message: 'Please use your university email' }
+                  { type: 'email', message: 'Please enter a valid email' },
                 ]}
               >
                 <Input prefix={<MailOutlined />} placeholder="student@university.edu" />
@@ -103,7 +99,7 @@ const RegisterPage = () => {
                 name="password"
                 rules={[
                   { required: true, message: 'Please enter your password' },
-                  { min: 8, message: 'Password must be at least 8 characters' }
+                  { min: 8, message: 'Password must be at least 8 characters' },
                 ]}
               >
                 <Input.Password prefix={<LockOutlined />} placeholder="Create a strong password" />
@@ -120,6 +116,7 @@ const RegisterPage = () => {
                       if (!value || getFieldValue('password') === value) {
                         return Promise.resolve();
                       }
+
                       return Promise.reject(new Error('Passwords do not match'));
                     },
                   }),
@@ -128,47 +125,35 @@ const RegisterPage = () => {
                 <Input.Password prefix={<LockOutlined />} placeholder="Confirm your password" />
               </Form.Item>
             </>
-          )}
+          ) : null}
 
-          {currentStep === 1 && (
+          {currentStep === 1 ? (
             <>
-              <Form.Item
-                label="University"
-                name="university"
-                rules={[{ required: true, message: 'Please select your university' }]}
-              >
-                <Select placeholder="Select your university" prefix={<BankOutlined />}>
-                  {universities.map(uni => (
-                    <Option key={uni} value={uni}>{uni}</Option>
+              <Form.Item label="University" name="university" rules={[{ required: true, message: 'Please select your university' }]}>
+                <Select placeholder="Select your university" suffixIcon={<BankOutlined />}>
+                  {universities.map((uni) => (
+                    <Option key={uni} value={uni}>
+                      {uni}
+                    </Option>
                   ))}
                 </Select>
               </Form.Item>
 
-              <Form.Item
-                label="Course/Program"
-                name="course"
-                rules={[{ required: true, message: 'Please select your course' }]}
-              >
+              <Form.Item label="Course/Program" name="course" rules={[{ required: true, message: 'Please select your course' }]}>
                 <Select placeholder="Select your course">
-                  {courses.map(course => (
-                    <Option key={course} value={course}>{course}</Option>
+                  {courses.map((course) => (
+                    <Option key={course} value={course}>
+                      {course}
+                    </Option>
                   ))}
                 </Select>
               </Form.Item>
 
-              <Form.Item
-                label="Student ID"
-                name="studentId"
-                rules={[{ required: true, message: 'Please enter your student ID' }]}
-              >
+              <Form.Item label="Student ID" name="studentId" rules={[{ required: true, message: 'Please enter your student ID' }]}>
                 <Input placeholder="Enter your student ID" />
               </Form.Item>
 
-              <Form.Item
-                label="Year of Study"
-                name="year"
-                rules={[{ required: true, message: 'Please select your year' }]}
-              >
+              <Form.Item label="Year of Study" name="yearOfStudy" rules={[{ required: true, message: 'Please select your year' }]}>
                 <Select placeholder="Select year">
                   <Option value="1">1st Year</Option>
                   <Option value="2">2nd Year</Option>
@@ -178,33 +163,28 @@ const RegisterPage = () => {
                 </Select>
               </Form.Item>
             </>
-          )}
+          ) : null}
 
-          {currentStep === 2 && (
+          {currentStep === 2 ? (
             <div style={{ textAlign: 'center', padding: '24px 0' }}>
               <div style={{ fontSize: 48, marginBottom: 16 }}>📧</div>
-              <Title level={4}>Verify Your Email</Title>
+              <Title level={4}>Account Ready</Title>
               <Text>
-                We've sent a verification link to your university email address.
-                Please check your inbox and click the link to verify your account.
+                {registrationComplete
+                  ? 'Your account has been created. If email verification is enabled, check your inbox for the verification link.'
+                  : 'Complete the first two steps to create your account.'}
               </Text>
-              <Button type="link" style={{ marginTop: 16 }}>
-                Resend verification email
-              </Button>
             </div>
-          )}
+          ) : null}
 
           <Form.Item style={{ marginTop: 24 }}>
             {currentStep < 2 ? (
               <Space>
-                {currentStep > 0 && (
-                  <Button onClick={() => setCurrentStep(currentStep - 1)}>
-                    Back
-                  </Button>
-                )}
+                {currentStep > 0 ? <Button onClick={() => setCurrentStep(currentStep - 1)}>Back</Button> : null}
                 <Button
                   type="primary"
-                  onClick={() => currentStep === 1 ? onFinish() : setCurrentStep(currentStep + 1)}
+                  htmlType={currentStep === 1 ? 'submit' : 'button'}
+                  onClick={currentStep === 1 ? undefined : () => setCurrentStep(currentStep + 1)}
                   loading={loading}
                 >
                   {currentStep === 1 ? 'Complete Registration' : 'Continue'}

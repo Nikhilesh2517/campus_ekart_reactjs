@@ -1,20 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Layout, Menu, Input, Badge, Avatar, Dropdown, Button, Space, Drawer } from 'antd';
+import React, { useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Avatar, Badge, Button, Drawer, Dropdown, Input, Layout, Menu, Space } from 'antd';
 import {
+  BellOutlined,
+  HeartOutlined,
+  HomeOutlined,
+  LogoutOutlined,
+  MenuOutlined,
+  MessageOutlined,
+  PlusCircleOutlined,
+  SettingOutlined,
   ShoppingOutlined,
   UserOutlined,
-  MessageOutlined,
-  BellOutlined,
-  PlusCircleOutlined,
-  HomeOutlined,
-  MenuOutlined,
-  LogoutOutlined,
-  SettingOutlined,
-  HeartOutlined,
 } from '@ant-design/icons';
 import appLogo from '../assets/images/app-logo.svg';
 import defaultAvatar from '../assets/images/default-avatar.svg';
+import { useAuth } from '../context/AuthContext';
 
 const { Header } = Layout;
 const { Search } = Input;
@@ -22,26 +23,8 @@ const { Search } = Input;
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { user, isAuthenticated, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
-    if (token && userData) {
-      setIsLoggedIn(true);
-      setUser(JSON.parse(userData));
-    }
-  }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setIsLoggedIn(false);
-    setUser(null);
-    navigate('/');
-  };
 
   const menuItems = [
     { key: '/', label: <Link to="/">Home</Link>, icon: <HomeOutlined /> },
@@ -50,120 +33,107 @@ const Navbar = () => {
     { key: '/contact', label: <Link to="/contact">Contact</Link> },
   ];
 
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
+
   const userMenuItems = [
     { key: 'profile', label: <Link to="/profile">Profile</Link>, icon: <UserOutlined /> },
     { key: 'orders', label: <Link to="/orders">My Orders</Link>, icon: <ShoppingOutlined /> },
     { key: 'messages', label: <Link to="/messages">Messages</Link>, icon: <MessageOutlined /> },
-    { key: 'saved', label: 'Saved Items', icon: <HeartOutlined /> },
-    { key: 'settings', label: 'Settings', icon: <SettingOutlined /> },
+    { key: 'saved', label: <Link to="/profile">Saved Items</Link>, icon: <HeartOutlined /> },
+    { key: 'settings', label: <Link to="/profile">Settings</Link>, icon: <SettingOutlined /> },
     { type: 'divider' },
     { key: 'logout', label: 'Logout', icon: <LogoutOutlined />, onClick: handleLogout },
   ];
 
-  const userDropdown = (
-    <Dropdown
-      menu={{ items: userMenuItems }}
-      placement="bottomRight"
-      arrow
-      trigger={['click']}
-    >
-      <Space style={{ cursor: 'pointer' }}>
-        <Avatar icon={<UserOutlined />} src={user?.avatar || defaultAvatar} />
-        <span style={{ display: 'none', '@media (min-width: 768px)': { display: 'inline' } }}>
-          {user?.name || 'Account'}
-        </span>
-      </Space>
-    </Dropdown>
-  );
-
-  const mobileMenu = (
-    <Drawer
-      title="Menu"
-      placement="right"
-      onClose={() => setMobileMenuOpen(false)}
-      open={mobileMenuOpen}
-      width={280}
-    >
-      <Menu
-        mode="vertical"
-        selectedKeys={[location.pathname]}
-        items={menuItems}
-        onClick={() => setMobileMenuOpen(false)}
-      />
-      {!isLoggedIn ? (
-        <Space direction="vertical" style={{ width: '100%', marginTop: 16 }}>
-          <Button type="primary" block onClick={() => { navigate('/login'); setMobileMenuOpen(false); }}>
-            Login
-          </Button>
-          <Button block onClick={() => { navigate('/register'); setMobileMenuOpen(false); }}>
-            Register
-          </Button>
-        </Space>
-      ) : (
-        <Menu
-          mode="vertical"
-          items={userMenuItems}
-          onClick={() => setMobileMenuOpen(false)}
-        />
-      )}
-    </Drawer>
-  );
-
   return (
-    <Header style={{ position: 'fixed', top: 0, zIndex: 1000, width: '100%', background: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', padding: '0 48px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '100%' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 24, fontWeight: 'bold', color: '#1890ff', textDecoration: 'none' }}>
+    <Header
+      style={{
+        position: 'fixed',
+        top: 0,
+        zIndex: 1000,
+        width: '100%',
+        background: '#fff',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        padding: '0 24px',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '100%', gap: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 24, minWidth: 0 }}>
+          <Link
+            to="/"
+            style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 22, fontWeight: 700, color: '#1890ff', textDecoration: 'none', whiteSpace: 'nowrap' }}
+          >
             <img src={appLogo} alt="College E-Kart logo" style={{ width: 34, height: 34 }} />
             <span>College E-Kart</span>
           </Link>
-          <Menu
-            mode="horizontal"
-            selectedKeys={[location.pathname]}
-            items={menuItems}
-            style={{ borderBottom: 'none', flex: 1, minWidth: 0, display: 'flex', gap: 8 }}
-            disabledOverflow
-          />
+
+          <div className="desktop-nav" style={{ minWidth: 0 }}>
+            <Menu
+              mode="horizontal"
+              selectedKeys={[location.pathname]}
+              items={menuItems}
+              style={{ borderBottom: 'none', minWidth: 0 }}
+            />
+          </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <Search
-            placeholder="Search books, gadgets, equipment..."
-            style={{ width: 300 }}
-            onSearch={(value) => console.log('Search:', value)}
-          />
-          
-          {isLoggedIn ? (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div className="desktop-search">
+            <Search
+              placeholder="Search products..."
+              style={{ width: 260 }}
+              onSearch={(value) => navigate(value ? `/products?search=${encodeURIComponent(value)}` : '/products')}
+            />
+          </div>
+
+          {isAuthenticated ? (
             <>
-              <Badge count={3}>
-                <BellOutlined style={{ fontSize: 20, cursor: 'pointer' }} />
+              <Badge count={0} size="small">
+                <BellOutlined style={{ fontSize: 18 }} />
               </Badge>
-              <Button
-                type="primary"
-                icon={<PlusCircleOutlined />}
-                onClick={() => navigate('/sell')}
-                style={{ borderRadius: 20 }}
-              >
+              <Button type="primary" icon={<PlusCircleOutlined />} onClick={() => navigate('/sell')}>
                 Sell
               </Button>
-              {userDropdown}
+              <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" trigger={['click']}>
+                <Space style={{ cursor: 'pointer' }}>
+                  <Avatar icon={<UserOutlined />} src={user?.avatar || defaultAvatar} />
+                  <span>{user?.name || 'Account'}</span>
+                </Space>
+              </Dropdown>
             </>
           ) : (
             <Space>
-              <Button type="link" onClick={() => navigate('/login')}>Login</Button>
-              <Button type="primary" onClick={() => navigate('/register')}>Register</Button>
+              <Button type="link" onClick={() => navigate('/login')}>
+                Login
+              </Button>
+              <Button type="primary" onClick={() => navigate('/register')}>
+                Register
+              </Button>
             </Space>
           )}
-          
-          <Button
-            type="text"
-            icon={<MenuOutlined />}
-            onClick={() => setMobileMenuOpen(true)}
-            style={{ display: 'none', '@media (max-width: 768px)': { display: 'inline-flex' } }}
-          />
+
+          <Button type="text" icon={<MenuOutlined />} onClick={() => setMobileMenuOpen(true)} />
         </div>
       </div>
-      {mobileMenu}
+
+      <Drawer title="Menu" placement="right" width={280} onClose={() => setMobileMenuOpen(false)} open={mobileMenuOpen}>
+        <Menu mode="vertical" selectedKeys={[location.pathname]} items={menuItems} onClick={() => setMobileMenuOpen(false)} />
+        {!isAuthenticated ? (
+          <Space direction="vertical" style={{ width: '100%', marginTop: 16 }}>
+            <Button type="primary" block onClick={() => { navigate('/login'); setMobileMenuOpen(false); }}>
+              Login
+            </Button>
+            <Button block onClick={() => { navigate('/register'); setMobileMenuOpen(false); }}>
+              Register
+            </Button>
+          </Space>
+        ) : (
+          <Menu mode="vertical" items={userMenuItems} onClick={() => setMobileMenuOpen(false)} style={{ marginTop: 16 }} />
+        )}
+      </Drawer>
     </Header>
   );
 };

@@ -1,28 +1,26 @@
 import React, { useState } from 'react';
-import { Form, Input, Button, Card, Typography, Space, Alert, Divider } from 'antd';
-import { UserOutlined, LockOutlined, MailOutlined } from '@ant-design/icons';
+import { Alert, Button, Card, Divider, Form, Input, Space, Typography } from 'antd';
+import { LockOutlined, MailOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const { Title, Text } = Typography;
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const onFinish = async (values) => {
     setLoading(true);
     setError('');
-    
+
     try {
-      // Simulate API call
-      setTimeout(() => {
-        localStorage.setItem('token', 'mock-token');
-        localStorage.setItem('user', JSON.stringify({ name: values.email.split('@')[0], email: values.email }));
-        navigate('/');
-      }, 1000);
+      await login(values.email, values.password);
+      navigate('/');
     } catch (err) {
-      setError('Invalid credentials. Please try again.');
+      setError(err.response?.data?.message || 'Invalid credentials. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -36,33 +34,21 @@ const LoginPage = () => {
           <Text type="secondary">Sign in to your College E-Kart account</Text>
         </div>
 
-        {error && (
-          <Alert message={error} type="error" showIcon style={{ marginBottom: 24 }} />
-        )}
+        {error ? <Alert message={error} type="error" showIcon style={{ marginBottom: 24 }} /> : null}
 
-        <Form
-          name="login"
-          onFinish={onFinish}
-          autoComplete="off"
-          size="large"
-          layout="vertical"
-        >
+        <Form name="login" onFinish={onFinish} autoComplete="off" size="large" layout="vertical">
           <Form.Item
             label="Email Address"
             name="email"
             rules={[
               { required: true, message: 'Please enter your email' },
-              { type: 'email', message: 'Please enter a valid email' }
+              { type: 'email', message: 'Please enter a valid email' },
             ]}
           >
             <Input prefix={<MailOutlined />} placeholder="student@university.edu" />
           </Form.Item>
 
-          <Form.Item
-            label="Password"
-            name="password"
-            rules={[{ required: true, message: 'Please enter your password' }]}
-          >
+          <Form.Item label="Password" name="password" rules={[{ required: true, message: 'Please enter your password' }]}>
             <Input.Password prefix={<LockOutlined />} placeholder="Enter your password" />
           </Form.Item>
 
@@ -84,12 +70,6 @@ const LoginPage = () => {
             </Space>
           </div>
         </Form>
-      </Card>
-
-      <Card style={{ marginTop: 16, textAlign: 'center' }}>
-        <Text type="secondary">
-          Use your university email to sign in and access campus-exclusive listings
-        </Text>
       </Card>
     </div>
   );

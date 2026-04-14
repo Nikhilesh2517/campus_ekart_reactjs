@@ -1,142 +1,143 @@
-import React, { useState } from 'react';
-import { 
-  Row, Col, Card, Input, Select, Slider, Button, Tag, Empty, 
-  Pagination, Space, Badge, Typography, Drawer, Radio, Checkbox
-} from 'antd';
-import { 
-  SearchOutlined, 
-  FilterOutlined, 
-  SortAscendingOutlined,
-  StarFilled,
-  EnvironmentOutlined
-} from '@ant-design/icons';
-import { formatPrice } from '../utils/helpers';
-import textbookImage from '../assets/images/textbook.svg';
-import laptopImage from '../assets/images/laptop.svg';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Button, Card, Col, Drawer, Empty, Input, Pagination, Row, Select, Slider, Space, Typography } from 'antd';
+import { FilterOutlined, SearchOutlined, SortAscendingOutlined } from '@ant-design/icons';
+import { useSearchParams } from 'react-router-dom';
+import ProductCard from '../components/ProductCard';
+import LoadingSpinner from '../components/LoadingSpinner';
+import { getProducts, saveProduct, unsaveProduct } from '../services/productService';
+import { CONDITIONS, CATEGORIES } from '../utils/constants';
+import { normalizeProduct } from '../utils/transforms';
 
-const { Title, Text, Paragraph } = Typography;
-const { Option } = Select;
+const { Title, Text } = Typography;
 
 const ProductsPage = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [filterDrawerVisible, setFilterDrawerVisible] = useState(false);
-  const [searchText, setSearchText] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [priceRange, setPriceRange] = useState([0, 500]);
-  const [selectedCondition, setSelectedCondition] = useState([]);
-  const [sortBy, setSortBy] = useState('newest');
-  const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(Number(searchParams.get('page') || 1));
+  const [search, setSearch] = useState(searchParams.get('search') || '');
+  const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'newest');
+  const [category, setCategory] = useState(searchParams.get('category') || 'all');
+  const [condition, setCondition] = useState(searchParams.get('condition') || '');
+  const [priceRange, setPriceRange] = useState([
+    Number(searchParams.get('minPrice') || 0),
+    Number(searchParams.get('maxPrice') || 1000),
+  ]);
 
-  const categories = [
-    { value: 'all', label: 'All Categories', count: 342 },
-    { value: 'books', label: 'Books', count: 234 },
-    { value: 'electronics', label: 'Electronics', count: 156 },
-    { value: 'calculators', label: 'Calculators', count: 89 },
-    { value: 'lab-equipment', label: 'Lab Equipment', count: 67 },
-    { value: 'furniture', label: 'Furniture', count: 45 },
-    { value: 'other', label: 'Other', count: 23 },
-  ];
+  const loadProducts = async () => {
+    setLoading(true);
+    try {
+      const response = await getProducts({
+        page,
+        limit: 12,
+        search: search || undefined,
+        sort: sortBy,
+        category: category === 'all' ? undefined : category,
+        condition: condition || undefined,
+        minPrice: priceRange[0] > 0 ? priceRange[0] : undefined,
+        maxPrice: priceRange[1] < 1000 ? priceRange[1] : undefined,
+      });
 
-  const conditions = [
-    { label: 'Like New', value: 'like-new', color: 'green' },
-    { label: 'Excellent', value: 'excellent', color: 'blue' },
-    { label: 'Good', value: 'good', color: 'orange' },
-    { label: 'Fair', value: 'fair', color: 'red' },
-  ];
-
-  const products = [
-    {
-      id: 1,
-      title: "Calculus: Early Transcendentals",
-      price: 45,
-      originalPrice: 120,
-      condition: "Like New",
-      seller: "Sarah Johnson",
-      image: textbookImage,
-      rating: 4.8,
-      reviews: 12,
-      category: "books",
-      location: "Main Campus",
-      daysAgo: 2,
-    },
-    {
-      id: 2,
-      title: "MacBook Pro 2020",
-      price: 850,
-      originalPrice: 1299,
-      condition: "Good",
-      seller: "Michael Chen",
-      image: laptopImage,
-      rating: 4.9,
-      reviews: 8,
-      category: "electronics",
-      location: "North Campus",
-      daysAgo: 1,
-    },
-    // Add more products...
-  ];
-
-  const getConditionColor = (condition) => {
-    const colors = { 'Like New': 'green', 'Excellent': 'blue', 'Good': 'orange', 'Fair': 'red' };
-    return colors[condition] || 'default';
+      setProducts((response.products || []).map(normalizeProduct));
+      setTotal(response.total || 0);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const filterContent = (
-    <div>
-      <Title level={5}>Categories</Title>
-      <Radio.Group value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} style={{ marginBottom: 24 }}>
-        <Space direction="vertical">
-          {categories.map(cat => (
-            <Radio key={cat.value} value={cat.value}>
-              {cat.label} <Text type="secondary">({cat.count})</Text>
-            </Radio>
-          ))}
-        </Space>
-      </Radio.Group>
+  useEffect(() => {
+    loadProducts();
+    setSearchParams({
+      ...(search ? { search } : {}),
+      ...(sortBy ? { sort: sortBy } : {}),
+      ...(category !== 'all' ? { category } : {}),
+      ...(condition ? { condition } : {}),
+      ...(priceRange[0] > 0 ? { minPrice: String(priceRange[0]) } : {}),
+      ...(priceRange[1] < 1000 ? { maxPrice: String(priceRange[1]) } : {}),
+      page: String(page),
+    });
+  }, [page, search, sortBy, category, condition, priceRange]);
 
-      <Title level={5}>Price Range</Title>
-      <Slider
-        range
-        min={0}
-        max={1000}
-        value={priceRange}
-        onChange={setPriceRange}
-        style={{ marginBottom: 24 }}
-      />
-      <Space style={{ marginBottom: 24 }}>
-        <Input value={formatPrice(priceRange[0])} style={{ width: 100 }} />
-        <span>to</span>
-        <Input value={formatPrice(priceRange[1])} style={{ width: 100 }} />
+  const filterContent = useMemo(
+    () => (
+      <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+        <div>
+          <Text strong>Category</Text>
+          <Select value={category} onChange={(value) => { setCategory(value); setPage(1); }} style={{ width: '100%', marginTop: 8 }}>
+            <Select.Option value="all">All Categories</Select.Option>
+            {CATEGORIES.map((item) => (
+              <Select.Option key={item.value} value={item.value}>
+                {item.label}
+              </Select.Option>
+            ))}
+          </Select>
+        </div>
+
+        <div>
+          <Text strong>Condition</Text>
+          <Select allowClear value={condition || undefined} onChange={(value) => { setCondition(value || ''); setPage(1); }} style={{ width: '100%', marginTop: 8 }}>
+            {CONDITIONS.map((item) => (
+              <Select.Option key={item.label} value={item.label}>
+                {item.label}
+              </Select.Option>
+            ))}
+          </Select>
+        </div>
+
+        <div>
+          <Text strong>Price Range</Text>
+          <Slider range min={0} max={1000} value={priceRange} onChange={(value) => { setPriceRange(value); setPage(1); }} style={{ marginTop: 12 }} />
+          <Text type="secondary">£{priceRange[0]} to £{priceRange[1]}</Text>
+        </div>
+
+        <Button onClick={() => { setCategory('all'); setCondition(''); setPriceRange([0, 1000]); setPage(1); }} block>
+          Reset Filters
+        </Button>
       </Space>
-
-      <Title level={5}>Condition</Title>
-      <Checkbox.Group
-        options={conditions.map(c => ({ label: c.label, value: c.value }))}
-        value={selectedCondition}
-        onChange={setSelectedCondition}
-        style={{ marginBottom: 24, display: 'flex', flexDirection: 'column' }}
-      />
-
-      <Button type="primary" block onClick={() => setFilterDrawerVisible(false)}>
-        Apply Filters
-      </Button>
-    </div>
+    ),
+    [category, condition, priceRange]
   );
+
+  const handleSave = async (productId) => {
+    const target = products.find((item) => item.id === productId);
+
+    try {
+      if (target?.saved) {
+        await unsaveProduct(productId);
+      } else {
+        await saveProduct(productId);
+      }
+
+      setProducts((currentProducts) =>
+        currentProducts.map((item) => (item.id === productId ? { ...item, saved: !item.saved } : item))
+      );
+    } catch (error) {
+      // Ignore here; the API already carries the authoritative state.
+    }
+  };
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-        <Title level={2}>Marketplace</Title>
-        <Space>
-          <Select
-            value={sortBy}
-            onChange={setSortBy}
-            style={{ width: 150 }}
-            suffixIcon={<SortAscendingOutlined />}
-          >
-            <Option value="newest">Newest First</Option>
-            <Option value="price-low">Price: Low to High</Option>
-            <Option value="price-high">Price: High to Low</Option>
-            <Option value="rating">Top Rated</Option>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, gap: 16, flexWrap: 'wrap' }}>
+        <Title level={2} style={{ margin: 0 }}>
+          Marketplace
+        </Title>
+        <Space wrap>
+          <Input
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            onPressEnter={() => setPage(1)}
+            prefix={<SearchOutlined />}
+            placeholder="Search products..."
+            style={{ width: 280 }}
+          />
+          <Select value={sortBy} onChange={(value) => { setSortBy(value); setPage(1); }} style={{ width: 180 }} suffixIcon={<SortAscendingOutlined />}>
+            <Select.Option value="newest">Newest First</Select.Option>
+            <Select.Option value="price-low">Price: Low to High</Select.Option>
+            <Select.Option value="price-high">Price: High to Low</Select.Option>
+            <Select.Option value="rating">Top Rated</Select.Option>
           </Select>
           <Button icon={<FilterOutlined />} onClick={() => setFilterDrawerVisible(true)}>
             Filters
@@ -146,80 +147,37 @@ const ProductsPage = () => {
 
       <Row gutter={[16, 16]}>
         <Col xs={0} md={6}>
-          <Card style={{ position: 'sticky', top: 80 }}>
-            {filterContent}
-          </Card>
+          <Card style={{ position: 'sticky', top: 88 }}>{filterContent}</Card>
         </Col>
-        
+
         <Col xs={24} md={18}>
           <div style={{ marginBottom: 16 }}>
-            <Input
-              placeholder="Search for books, electronics, equipment..."
-              prefix={<SearchOutlined />}
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              size="large"
-            />
+            <Text type="secondary">Showing {products.length} of {total} results</Text>
           </div>
 
-          <div style={{ marginBottom: 16 }}>
-            <Text type="secondary">Showing {products.length} results</Text>
-          </div>
+          {loading ? (
+            <LoadingSpinner tip="Loading products..." />
+          ) : products.length === 0 ? (
+            <Empty description="No products found" />
+          ) : (
+            <>
+              <Row gutter={[16, 16]}>
+                {products.map((product) => (
+                  <Col xs={24} sm={12} lg={8} key={product.id}>
+                    <ProductCard product={product} saved={product.saved} onSave={handleSave} />
+                  </Col>
+                ))}
+              </Row>
 
-          <Row gutter={[16, 16]}>
-            {products.map(product => (
-              <Col xs={24} sm={12} lg={8} key={product.id}>
-                <Card
-                  hoverable
-                  cover={<img alt={product.title} src={product.image} style={{ height: 200, objectFit: 'cover' }} />}
-                  actions={[
-                    <Button type="link" href={`/product/${product.id}`}>View Details</Button>
-                  ]}
-                >
-                  <Card.Meta
-                    title={product.title}
-                    description={
-                      <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                          <Text strong style={{ fontSize: 20, color: '#1890ff' }}>{formatPrice(product.price)}</Text>
-                          <Text delete type="secondary">{formatPrice(product.originalPrice)}</Text>
-                        </div>
-                        <Tag color={getConditionColor(product.condition)}>{product.condition}</Tag>
-                        <div style={{ marginTop: 8 }}>
-                          <StarFilled style={{ color: '#faad14' }} /> {product.rating} ({product.reviews})
-                        </div>
-                        <div style={{ marginTop: 8 }}>
-                          <EnvironmentOutlined style={{ marginRight: 4 }} />
-                          <Text type="secondary" style={{ fontSize: 12 }}>{product.location}</Text>
-                        </div>
-                        <Text type="secondary" style={{ fontSize: 12 }}>Posted {product.daysAgo} days ago</Text>
-                      </div>
-                    }
-                  />
-                </Card>
-              </Col>
-            ))}
-          </Row>
-
-          <div style={{ textAlign: 'center', marginTop: 32 }}>
-            <Pagination
-              current={currentPage}
-              total={342}
-              pageSize={12}
-              onChange={setCurrentPage}
-              showSizeChanger={false}
-            />
-          </div>
+              <div style={{ textAlign: 'center', marginTop: 32 }}>
+                <Pagination current={page} total={total} pageSize={12} onChange={setPage} showSizeChanger={false} />
+              </div>
+            </>
+          )}
         </Col>
       </Row>
 
-      <Drawer
-        title="Filters"
-        placement="right"
-        onClose={() => setFilterDrawerVisible(false)}
-        open={filterDrawerVisible}
-        width={320}
-      >
+      <Drawer title="Filters" placement="right" width={320} onClose={() => setFilterDrawerVisible(false)} open={filterDrawerVisible}>
         {filterContent}
       </Drawer>
     </div>

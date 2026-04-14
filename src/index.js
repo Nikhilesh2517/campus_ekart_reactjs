@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { HelmetProvider } from 'react-helmet-async';
 import { ConfigProvider } from 'antd';
 import App from './App';
+import { AuthProvider } from './context/AuthContext';
 import './index.css';
 
 const queryClient = new QueryClient();
@@ -15,27 +16,29 @@ root.render(
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
-          <ConfigProvider
-            theme={{
-              token: {
-                colorPrimary: '#1890ff',
-                borderRadius: 8,
-                colorSuccess: '#52c41a',
-                colorWarning: '#faad14',
-                colorError: '#f5222d',
-              },
-              components: {
-                Button: {
-                  borderRadius: 6,
+          <AuthProvider>
+            <ConfigProvider
+              theme={{
+                token: {
+                  colorPrimary: '#1890ff',
+                  borderRadius: 8,
+                  colorSuccess: '#52c41a',
+                  colorWarning: '#faad14',
+                  colorError: '#f5222d',
                 },
-                Card: {
-                  borderRadiusLG: 12,
+                components: {
+                  Button: {
+                    borderRadius: 6,
+                  },
+                  Card: {
+                    borderRadiusLG: 12,
+                  },
                 },
-              },
-            }}
-          >
-            <App />
-          </ConfigProvider>
+              }}
+            >
+              <App />
+            </ConfigProvider>
+          </AuthProvider>
         </BrowserRouter>
       </QueryClientProvider>
     </HelmetProvider>
