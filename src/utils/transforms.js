@@ -7,7 +7,7 @@ export const toAbsoluteUrl = (path) => {
     return path;
   }
 
-  const apiBaseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+  const apiBaseUrl = process.env.REACT_APP_API_URL || 'http://localhost:9001/api';
   const origin = apiBaseUrl.replace(/\/api\/?$/, '');
 
   return `${origin}${path}`;

@@ -5,6 +5,11 @@ export const getProducts = async (filters = {}) => {
   return response.data;
 };
 
+export const getMarketplaceStats = async () => {
+  const response = await api.get('/products/stats/summary');
+  return response.data;
+};
+
 export const getProductById = async (id) => {
   const response = await api.get(`/products/${id}`);
   return response.data;
@@ -13,6 +18,10 @@ export const getProductById = async (id) => {
 export const createProduct = async (productData) => {
   const formData = new FormData();
   Object.keys(productData).forEach(key => {
+    if (productData[key] === undefined || productData[key] === null || productData[key] === '') {
+      return;
+    }
+
     if (key === 'images') {
       productData.images.forEach(image => {
         formData.append('images', image);

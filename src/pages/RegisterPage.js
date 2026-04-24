@@ -26,16 +26,45 @@ const courses = [
 const RegisterPage = () => {
   const navigate = useNavigate();
   const { register } = useAuth();
+  const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [currentStep, setCurrentStep] = useState(0);
   const [registrationComplete, setRegistrationComplete] = useState(false);
 
-  const onFinish = async (values) => {
+  const stepFields = [
+    ['fullName', 'email', 'password', 'confirmPassword'],
+    ['university', 'course', 'studentId', 'yearOfStudy'],
+  ];
+  const registrationFields = stepFields.flat();
+
+  const goToNextStep = async () => {
+    try {
+      await form.validateFields(stepFields[currentStep]);
+      setError('');
+      setCurrentStep(currentStep + 1);
+    } catch {
+      setError('');
+    }
+  };
+
+  const onFinish = async () => {
+    if (currentStep === 0) {
+      await goToNextStep();
+      return;
+    }
+
+    if (currentStep !== 1) {
+      return;
+    }
+
     setLoading(true);
     setError('');
 
     try {
+      await form.validateFields(registrationFields);
+      const values = form.getFieldsValue(true);
+
       const response = await register({
         fullName: values.fullName,
         email: values.email,
@@ -53,7 +82,12 @@ const RegisterPage = () => {
         navigate('/');
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+      const validationErrors = err.response?.data?.errors;
+      const validationMessage = Array.isArray(validationErrors)
+        ? validationErrors.map((item) => item.msg).join(', ')
+        : null;
+
+      setError(validationMessage || err.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -71,16 +105,46 @@ const RegisterPage = () => {
 
         <Steps
           current={currentStep}
-          onChange={setCurrentStep}
+          onChange={async (nextStep) => {
+            if (nextStep <= currentStep) {
+              setCurrentStep(nextStep);
+              return;
+            }
+
+            if (nextStep > currentStep + 1) {
+              return;
+            }
+
+            try {
+              await form.validateFields(stepFields[currentStep]);
+              setError('');
+              setCurrentStep(nextStep);
+            } catch {
+              setError('');
+            }
+          }}
           items={[{ title: 'Account' }, { title: 'Profile' }, { title: 'Verify' }]}
           style={{ marginBottom: 24 }}
         />
 
-        <Form name="register" onFinish={onFinish} autoComplete="off" size="large" layout="vertical">
+        <Form
+          form={form}
+          name="register"
+          preserve
+          onFinish={onFinish}
+          onValuesChange={() => {
+            if (error) {
+              setError('');
+            }
+          }}
+          autoComplete="off"
+          size="large"
+          layout="vertical"
+        >
           {currentStep === 0 ? (
             <>
               <Form.Item label="Full Name" name="fullName" rules={[{ required: true, message: 'Please enter your full name' }]}>
-                <Input prefix={<UserOutlined />} placeholder="John Doe" />
+                <Input prefix={<UserOutlined />} placeholder="Your full name" />
               </Form.Item>
 
               <Form.Item
@@ -184,7 +248,7 @@ const RegisterPage = () => {
                 <Button
                   type="primary"
                   htmlType={currentStep === 1 ? 'submit' : 'button'}
-                  onClick={currentStep === 1 ? undefined : () => setCurrentStep(currentStep + 1)}
+                  onClick={currentStep === 1 ? undefined : goToNextStep}
                   loading={loading}
                 >
                   {currentStep === 1 ? 'Complete Registration' : 'Continue'}

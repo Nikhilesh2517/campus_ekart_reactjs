@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Card, Form, Input, Button, Typography, Row, Col, Space, message } from 'antd';
 import { MailOutlined, PhoneOutlined, EnvironmentOutlined, SendOutlined } from '@ant-design/icons';
+import { sendContactMessage } from '../services/contactService';
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -12,14 +13,12 @@ const ContactPage = () => {
   const onFinish = async (values) => {
     setLoading(true);
     try {
-      // Simulate API call
-      setTimeout(() => {
-        message.success('Message sent successfully! We\'ll get back to you soon.');
-        form.resetFields();
-        setLoading(false);
-      }, 1500);
+      const response = await sendContactMessage(values);
+      message.success(response.message || 'Message sent successfully! We\'ll get back to you soon.');
+      form.resetFields();
     } catch (error) {
-      message.error('Failed to send message. Please try again.');
+      message.error(error.response?.data?.message || 'Failed to send message. Please try again.');
+    } finally {
       setLoading(false);
     }
   };
@@ -70,7 +69,7 @@ const ContactPage = () => {
                 name="name"
                 rules={[{ required: true, message: 'Please enter your name' }]}
               >
-                <Input placeholder="John Doe" />
+                <Input placeholder="Your full name" />
               </Form.Item>
               
               <Form.Item

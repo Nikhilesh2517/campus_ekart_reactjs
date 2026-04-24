@@ -40,6 +40,7 @@ const Navbar = () => {
 
   const userMenuItems = [
     { key: 'profile', label: <Link to="/profile">Profile</Link>, icon: <UserOutlined /> },
+    { key: 'my-products', label: <Link to="/my-products">My Products</Link>, icon: <ShoppingOutlined /> },
     { key: 'orders', label: <Link to="/orders">My Orders</Link>, icon: <ShoppingOutlined /> },
     { key: 'messages', label: <Link to="/messages">Messages</Link>, icon: <MessageOutlined /> },
     { key: 'saved', label: <Link to="/profile">Saved Items</Link>, icon: <HeartOutlined /> },

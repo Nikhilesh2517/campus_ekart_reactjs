@@ -7,6 +7,7 @@ import HomePage from './pages/HomePage';
 import ProductsPage from './pages/ProductsPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import SellPage from './pages/SellPage';
+import MyProductsPage from './pages/MyProductsPage';
 import ProfilePage from './pages/ProfilePage';
 import MessagesPage from './pages/MessagesPage';
 import OrdersPage from './pages/OrdersPage';
@@ -45,6 +46,11 @@ function App() {
             <Route path="/sell" element={
               <ProtectedRoute>
                 <SellPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/my-products" element={
+              <ProtectedRoute>
+                <MyProductsPage />
               </ProtectedRoute>
             } />
             <Route path="/profile" element={

@@ -10,6 +10,8 @@ import {
   CheckCircleOutlined
 } from '@ant-design/icons';
 import { formatPrice } from '../utils/helpers';
+import { createProduct } from '../services/productService';
+import { CATEGORIES, CONDITIONS } from '../utils/constants';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -21,13 +23,6 @@ const SellPage = () => {
   const [form] = Form.useForm();
   const [fileList, setFileList] = useState([]);
   const [submitting, setSubmitting] = useState(false);
-
-  const categories = [
-    'Textbooks', 'Electronics', 'Calculators', 'Lab Equipment', 
-    'Furniture', 'Stationery', 'Other'
-  ];
-
-  const conditions = ['Like New', 'Excellent', 'Good', 'Fair'];
 
   const uploadProps = {
     name: 'file',
@@ -55,18 +50,31 @@ const SellPage = () => {
   const onFinish = async (values) => {
     setSubmitting(true);
     try {
-      // Simulate API call
-      setTimeout(() => {
-        message.success('Item listed successfully!');
-        form.resetFields();
-        setFileList([]);
-        setCurrentStep(0);
-        setSubmitting(false);
-      }, 2000);
+      await createProduct({ ...values, images: fileList });
+      message.success('Item listed successfully!');
+      form.resetFields();
+      setFileList([]);
+      setCurrentStep(0);
     } catch (error) {
-      message.error('Failed to list item. Please try again.');
+      message.error(error.response?.data?.message || 'Failed to list item. Please try again.');
+    } finally {
       setSubmitting(false);
     }
+  };
+
+  const validateStep = async () => {
+    const stepFields = [
+      ['title', 'category', 'description'],
+      ['price', 'originalPrice', 'condition', 'location'],
+      ['images'],
+    ];
+
+    await form.validateFields(stepFields[currentStep]);
+    if (currentStep === 2 && fileList.length === 0) {
+      message.error('Please upload at least one photo');
+      return;
+    }
+    setCurrentStep(currentStep + 1);
   };
 
   const steps = [
@@ -114,8 +122,8 @@ const SellPage = () => {
                 rules={[{ required: true, message: 'Please select category' }]}
               >
                 <Select placeholder="Select category">
-                  {categories.map(cat => (
-                    <Option key={cat} value={cat}>{cat}</Option>
+                  {CATEGORIES.map(cat => (
+                    <Option key={cat.value} value={cat.value}>{cat.label}</Option>
                   ))}
                 </Select>
               </Form.Item>
@@ -171,10 +179,18 @@ const SellPage = () => {
                 rules={[{ required: true, message: 'Please select condition' }]}
               >
                 <Select placeholder="Select condition">
-                  {conditions.map(cond => (
-                    <Option key={cond} value={cond}>{cond}</Option>
+                  {CONDITIONS.map(cond => (
+                    <Option key={cond.label} value={cond.label}>{cond.label}</Option>
                   ))}
                 </Select>
+              </Form.Item>
+
+              <Form.Item
+                label="Pickup Location"
+                name="location"
+                rules={[{ required: true, message: 'Please enter pickup location' }]}
+              >
+                <Input placeholder="e.g., Main Campus Library" />
               </Form.Item>
 
               <Alert
@@ -198,7 +214,7 @@ const SellPage = () => {
               <Form.Item
                 label="Upload Photos"
                 name="images"
-                rules={[{ required: true, message: 'Please upload at least one photo' }]}
+                rules={[{ validator: () => (fileList.length ? Promise.resolve() : Promise.reject(new Error('Please upload at least one photo'))) }]}
               >
                 <Dragger {...uploadProps}>
                   <p className="ant-upload-drag-icon">
@@ -233,6 +249,7 @@ const SellPage = () => {
                   <div><Text strong>Original Price:</Text> {formatPrice(form.getFieldValue('originalPrice'))}</div>
                 )}
                 <div><Text strong>Condition:</Text> {form.getFieldValue('condition') || 'Not provided'}</div>
+                <div><Text strong>Pickup Location:</Text> {form.getFieldValue('location') || 'Not provided'}</div>
                 <div><Text strong>Description:</Text></div>
                 <div style={{ marginLeft: 16 }}>{form.getFieldValue('description') || 'Not provided'}</div>
                 <div><Text strong>Photos:</Text> {fileList.length} uploaded</div>
@@ -250,7 +267,7 @@ const SellPage = () => {
               {currentStep < 3 && (
                 <Button 
                   type="primary" 
-                  onClick={() => setCurrentStep(currentStep + 1)}
+                  onClick={validateStep}
                 >
                   Next
                 </Button>
