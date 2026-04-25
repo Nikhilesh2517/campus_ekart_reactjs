@@ -9,7 +9,7 @@ import {
   BookOutlined,
   CheckCircleOutlined
 } from '@ant-design/icons';
-import { formatPrice } from '../utils/helpers';
+import { formatPrice, getApiErrorMessage } from '../utils/helpers';
 import { createProduct } from '../services/productService';
 import { CATEGORIES, CONDITIONS } from '../utils/constants';
 
@@ -47,16 +47,17 @@ const SellPage = () => {
     },
   };
 
-  const onFinish = async (values) => {
+  const onFinish = async () => {
     setSubmitting(true);
     try {
+      const values = form.getFieldsValue(true);
       await createProduct({ ...values, images: fileList });
       message.success('Item listed successfully!');
       form.resetFields();
       setFileList([]);
       setCurrentStep(0);
     } catch (error) {
-      message.error(error.response?.data?.message || 'Failed to list item. Please try again.');
+      message.error(getApiErrorMessage(error, 'Failed to list item. Please try again.'));
     } finally {
       setSubmitting(false);
     }
@@ -69,12 +70,17 @@ const SellPage = () => {
       ['images'],
     ];
 
-    await form.validateFields(stepFields[currentStep]);
-    if (currentStep === 2 && fileList.length === 0) {
-      message.error('Please upload at least one photo');
-      return;
+    try {
+      await form.validateFields(stepFields[currentStep]);
+      if (currentStep === 2 && fileList.length === 0) {
+        message.error('Please upload at least one photo');
+        return;
+      }
+      setCurrentStep(currentStep + 1);
+    } catch {
+      // Ant Design already marks the invalid fields. Swallow the validation
+      // object so it does not appear as a runtime error in the dev overlay.
     }
-    setCurrentStep(currentStep + 1);
   };
 
   const steps = [
@@ -149,10 +155,13 @@ const SellPage = () => {
               <Form.Item
                 label="Price (GBP)"
                 name="price"
-                rules={[{ required: true, message: 'Please enter price' }]}
+                rules={[
+                  { required: true, message: 'Please enter price' },
+                  { type: 'number', min: 0.01, message: 'Price must be greater than 0' },
+                ]}
               >
                 <InputNumber
-                  min={0}
+                  min={0.01}
                   step={5}
                   style={{ width: '100%' }}
                   placeholder="Enter your price"
@@ -163,9 +172,12 @@ const SellPage = () => {
               <Form.Item
                 label="Original Price (Optional)"
                 name="originalPrice"
+                rules={[
+                  { type: 'number', min: 0.01, message: 'Original price must be greater than 0' },
+                ]}
               >
                 <InputNumber
-                  min={0}
+                  min={0.01}
                   step={5}
                   style={{ width: '100%' }}
                   placeholder="Original retail price"

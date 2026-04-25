@@ -49,7 +49,7 @@ import {
 } from '../services/userService';
 import { deleteProduct, updateProduct, unsaveProduct } from '../services/productService';
 import { normalizeProduct, normalizeUser } from '../utils/transforms';
-import { formatPrice } from '../utils/helpers';
+import { formatPrice, getApiErrorMessage } from '../utils/helpers';
 import { CATEGORIES, CONDITIONS } from '../utils/constants';
 import defaultAvatar from '../assets/images/default-avatar.svg';
 
@@ -174,7 +174,7 @@ const ProfilePage = () => {
       setProductModalVisible(false);
       setEditingProduct(null);
     } catch (err) {
-      message.error(err.response?.data?.message || 'Failed to update product');
+      message.error(getApiErrorMessage(err, 'Failed to update product'));
     } finally {
       setSaving(false);
     }
@@ -432,11 +432,24 @@ const ProfilePage = () => {
           <Form.Item label="Description" name="description">
             <Input.TextArea rows={4} />
           </Form.Item>
-          <Form.Item label="Price" name="price" rules={[{ required: true, message: 'Price is required' }]}>
-            <InputNumber min={0} style={{ width: '100%' }} prefix="£" />
+          <Form.Item
+            label="Price"
+            name="price"
+            rules={[
+              { required: true, message: 'Price is required' },
+              { type: 'number', min: 0.01, message: 'Price must be greater than 0' },
+            ]}
+          >
+            <InputNumber min={0.01} style={{ width: '100%' }} prefix="£" />
           </Form.Item>
-          <Form.Item label="Original Price" name="originalPrice">
-            <InputNumber min={0} style={{ width: '100%' }} prefix="£" />
+          <Form.Item
+            label="Original Price"
+            name="originalPrice"
+            rules={[
+              { type: 'number', min: 0.01, message: 'Original price must be greater than 0' },
+            ]}
+          >
+            <InputNumber min={0.01} style={{ width: '100%' }} prefix="£" />
           </Form.Item>
           <Form.Item label="Category" name="category">
             <Select options={CATEGORIES.map((item) => ({ value: item.value, label: item.label }))} />

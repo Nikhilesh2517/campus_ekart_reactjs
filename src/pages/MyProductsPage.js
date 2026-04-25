@@ -32,7 +32,7 @@ import {
   updateProduct,
 } from '../services/productService';
 import { normalizeProduct } from '../utils/transforms';
-import { formatPrice } from '../utils/helpers';
+import { formatPrice, getApiErrorMessage } from '../utils/helpers';
 import { CATEGORIES, CONDITIONS, STATUS_COLORS } from '../utils/constants';
 
 const { Title, Text } = Typography;
@@ -58,7 +58,7 @@ const MyProductsPage = () => {
       const data = await getUserProducts();
       setProducts((data || []).map(normalizeProduct));
     } catch (error) {
-      message.error(error.response?.data?.message || 'Failed to load your products');
+      message.error(getApiErrorMessage(error, 'Failed to load your products'));
     } finally {
       setLoading(false);
     }
@@ -116,7 +116,7 @@ const MyProductsPage = () => {
       }
       closeModal();
     } catch (error) {
-      message.error(error.response?.data?.message || 'Failed to save product');
+      message.error(getApiErrorMessage(error, 'Failed to save product'));
     } finally {
       setSaving(false);
     }
@@ -128,7 +128,7 @@ const MyProductsPage = () => {
       setProducts((items) => items.filter((item) => item.id !== productId));
       message.success('Product deleted successfully');
     } catch (error) {
-      message.error(error.response?.data?.message || 'Failed to delete product');
+      message.error(getApiErrorMessage(error, 'Failed to delete product'));
     }
   };
 
@@ -272,11 +272,24 @@ const MyProductsPage = () => {
           <Form.Item label="Description" name="description">
             <TextArea rows={4} placeholder="Describe the item condition, features, and pickup notes" />
           </Form.Item>
-          <Form.Item label="Price" name="price" rules={[{ required: true, message: 'Price is required' }]}>
-            <InputNumber min={0} style={{ width: '100%' }} prefix="£" />
+          <Form.Item
+            label="Price"
+            name="price"
+            rules={[
+              { required: true, message: 'Price is required' },
+              { type: 'number', min: 0.01, message: 'Price must be greater than 0' },
+            ]}
+          >
+            <InputNumber min={0.01} style={{ width: '100%' }} prefix="£" />
           </Form.Item>
-          <Form.Item label="Original Price" name="originalPrice">
-            <InputNumber min={0} style={{ width: '100%' }} prefix="£" />
+          <Form.Item
+            label="Original Price"
+            name="originalPrice"
+            rules={[
+              { type: 'number', min: 0.01, message: 'Original price must be greater than 0' },
+            ]}
+          >
+            <InputNumber min={0.01} style={{ width: '100%' }} prefix="£" />
           </Form.Item>
           <Form.Item label="Category" name="category">
             <Select options={CATEGORIES.map((item) => ({ value: item.value, label: item.label }))} />

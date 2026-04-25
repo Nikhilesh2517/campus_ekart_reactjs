@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Avatar, Badge, Button, Drawer, Dropdown, Input, Layout, Menu, Space } from 'antd';
+import { Avatar, Badge, Button, Drawer, Dropdown, Input, Layout, Menu, Space, Typography } from 'antd';
 import {
   BellOutlined,
   HeartOutlined,
@@ -9,22 +9,66 @@ import {
   MenuOutlined,
   MessageOutlined,
   PlusCircleOutlined,
-  SettingOutlined,
   ShoppingOutlined,
   UserOutlined,
 } from '@ant-design/icons';
 import appLogo from '../assets/images/app-logo.svg';
 import defaultAvatar from '../assets/images/default-avatar.svg';
 import { useAuth } from '../context/AuthContext';
+import { getConversations } from '../services/messageService';
+import './Navbar.css';
 
 const { Header } = Layout;
 const { Search } = Input;
+const { Text } = Typography;
 
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAuthenticated, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [conversations, setConversations] = useState([]);
+
+  const loadNotifications = useCallback(async () => {
+    if (!isAuthenticated) {
+      setConversations([]);
+      return;
+    }
+
+    try {
+      const data = await getConversations();
+      setConversations(data || []);
+    } catch {
+      setConversations([]);
+    }
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    loadNotifications();
+
+    if (!isAuthenticated) {
+      return undefined;
+    }
+
+    const intervalId = window.setInterval(loadNotifications, 30000);
+    const handleRefresh = () => loadNotifications();
+    window.addEventListener('college-ekart:notifications-refresh', handleRefresh);
+
+    return () => {
+      window.clearInterval(intervalId);
+      window.removeEventListener('college-ekart:notifications-refresh', handleRefresh);
+    };
+  }, [isAuthenticated, loadNotifications, location.pathname]);
+
+  const unreadConversations = useMemo(
+    () => conversations.filter((item) => Number(item.unread_count || 0) > 0),
+    [conversations]
+  );
+
+  const unreadCount = useMemo(
+    () => unreadConversations.reduce((total, item) => total + Number(item.unread_count || 0), 0),
+    [unreadConversations]
+  );
 
   const menuItems = [
     { key: '/', label: <Link to="/">Home</Link>, icon: <HomeOutlined /> },
@@ -44,28 +88,42 @@ const Navbar = () => {
     { key: 'orders', label: <Link to="/orders">My Orders</Link>, icon: <ShoppingOutlined /> },
     { key: 'messages', label: <Link to="/messages">Messages</Link>, icon: <MessageOutlined /> },
     { key: 'saved', label: <Link to="/profile">Saved Items</Link>, icon: <HeartOutlined /> },
-    { key: 'settings', label: <Link to="/profile">Settings</Link>, icon: <SettingOutlined /> },
     { type: 'divider' },
     { key: 'logout', label: 'Logout', icon: <LogoutOutlined />, onClick: handleLogout },
   ];
 
+  const notificationMenuItems = unreadConversations.length
+    ? [
+        ...unreadConversations.slice(0, 5).map((conversation) => ({
+          key: `message-${conversation.other_user_id}`,
+          label: (
+            <div className="college-navbar__notification">
+              <Text strong>{conversation.other_user_name}</Text>
+              <Text type="secondary" ellipsis>
+                {conversation.last_message || 'New message'}
+              </Text>
+            </div>
+          ),
+          onClick: () => navigate('/messages'),
+        })),
+        { type: 'divider' },
+        { key: 'all-messages', label: 'View all messages', onClick: () => navigate('/messages') },
+      ]
+    : [
+        { key: 'empty', label: <Text type="secondary">No new notifications</Text>, disabled: true },
+        { type: 'divider' },
+        { key: 'all-messages', label: 'View messages', onClick: () => navigate('/messages') },
+      ];
+
   return (
     <Header
-      style={{
-        position: 'fixed',
-        top: 0,
-        zIndex: 1000,
-        width: '100%',
-        background: '#fff',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-        padding: '0 24px',
-      }}
+      className="college-navbar"
     >
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '100%', gap: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 24, minWidth: 0 }}>
+      <div className="college-navbar__inner">
+        <div className="college-navbar__left">
           <Link
             to="/"
-            style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 22, fontWeight: 700, color: '#1890ff', textDecoration: 'none', whiteSpace: 'nowrap' }}
+            className="college-navbar__brand"
           >
             <img src={appLogo} alt="College E-Kart logo" style={{ width: 34, height: 34 }} />
             <span>College E-Kart</span>
@@ -81,25 +139,31 @@ const Navbar = () => {
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div className="college-navbar__right">
           <div className="desktop-search">
             <Search
               placeholder="Search products..."
-              style={{ width: 260 }}
               onSearch={(value) => navigate(value ? `/products?search=${encodeURIComponent(value)}` : '/products')}
             />
           </div>
 
           {isAuthenticated ? (
             <>
-              <Badge count={0} size="small">
-                <BellOutlined style={{ fontSize: 18 }} />
-              </Badge>
+              <Dropdown menu={{ items: notificationMenuItems }} placement="bottomRight" trigger={['click']}>
+                <Badge count={unreadCount} size="small">
+                  <Button
+                    className="college-navbar__icon-button"
+                    type="text"
+                    icon={<BellOutlined />}
+                    aria-label="Notifications"
+                  />
+                </Badge>
+              </Dropdown>
               <Button type="primary" icon={<PlusCircleOutlined />} onClick={() => navigate('/sell')}>
                 Sell
               </Button>
               <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" trigger={['click']}>
-                <Space style={{ cursor: 'pointer' }}>
+                <Space className="college-navbar__account">
                   <Avatar icon={<UserOutlined />} src={user?.avatar || defaultAvatar} />
                   <span>{user?.name || 'Account'}</span>
                 </Space>
@@ -116,7 +180,7 @@ const Navbar = () => {
             </Space>
           )}
 
-          <Button type="text" icon={<MenuOutlined />} onClick={() => setMobileMenuOpen(true)} />
+          <Button className="college-navbar__menu-button" type="text" icon={<MenuOutlined />} onClick={() => setMobileMenuOpen(true)} />
         </div>
       </div>
 

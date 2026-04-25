@@ -49,6 +49,7 @@ const MessagesPage = () => {
       try {
         const data = await getMessages(selectedConversation.other_user_id);
         setMessages(data);
+        window.dispatchEvent(new Event('college-ekart:notifications-refresh'));
       } catch (err) {
         antdMessage.error(err.response?.data?.message || 'Failed to load messages');
       } finally {
@@ -72,6 +73,7 @@ const MessagesPage = () => {
       setMessages((items) => [...items, response.data]);
       setMessageText('');
       await loadConversations();
+      window.dispatchEvent(new Event('college-ekart:notifications-refresh'));
     } catch (err) {
       antdMessage.error(err.response?.data?.message || 'Failed to send message');
     } finally {
